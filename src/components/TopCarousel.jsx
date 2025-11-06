@@ -1,68 +1,74 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import MovieCard from "./MovieCard";
 
 export default function TopCarousel({ movies }) {
-    const [isHovered, setIsHovered] = useState(false);
-    const controls = useAnimation();
-    const positionRef = useRef(0); // Track current x position
+    const carouselRef = useRef(null);
+    const [autoMove, setAutoMove] = useState(true);
+    const [position, setPosition] = useState(0);
+    const [touchStartX, setTouchStartX] = useState(null);
 
-    // Function to start smooth infinite scroll
-    const startAnimation = async (from = "0%") => {
-        await controls.start({
-            x: [from, "-100%"],
-            transition: {
-                ease: "linear",
-                duration: 30,
-                repeat: Infinity,
-            },
-        });
-    };
+    // Card width changes with screen size
+    const itemWidth = window.innerWidth < 640 ? 140 :
+        window.innerWidth < 1024 ? 160 :
+            200; // wider cards for large screens
+    const gap = window.innerWidth < 640 ? 10 : 20;
+    const totalWidth = (itemWidth + gap) * movies.length;
 
-    // Function to stop animation and store current position
-    const stopAnimation = async () => {
-        const latest = await controls.stop(); // stop returns nothing, so we manually use positionRef
-    };
-
-    // Watch the animation progress using onUpdate
-    const handleUpdate = (latest) => {
-        if (latest.x) {
-            positionRef.current = latest.x; // store current position
-        }
-    };
-
-    // Start on mount
+    // 🎞️ Auto move
     useEffect(() => {
-        startAnimation("0%");
-    }, []);
+        if (!autoMove) return;
+        const interval = setInterval(() => {
+            setPosition((prev) => {
+                const next = prev - 1.5;
+                return next < -totalWidth ? 0 : next;
+            });
+        }, 16);
+        return () => clearInterval(interval);
+    }, [autoMove, totalWidth]);
+
+    // 📱 Touch controls
+    const handleTouchStart = (e) => {
+        setAutoMove(false);
+        setTouchStartX(e.touches[0].clientX);
+    };
+
+    const handleTouchMove = (e) => {
+        if (touchStartX === null) return;
+        const currentX = e.touches[0].clientX;
+        const diff = currentX - touchStartX;
+        setPosition((prev) => prev + diff * 0.3);
+        setTouchStartX(currentX);
+    };
+
+    const handleTouchEnd = () => {
+        setTouchStartX(null);
+        setAutoMove(true);
+    };
 
     return (
-        <section className="mb-12">
-            <div
-                className="overflow-hidden relative"
-                onMouseEnter={() => {
-                    setIsHovered(true);
-                    controls.stop();
-                }}
-                onMouseLeave={() => {
-                    setIsHovered(false);
-                    // Resume from current position smoothly
-                    startAnimation(positionRef.current + "%");
-                }}
+        <div
+            ref={carouselRef}
+            className="overflow-hidden relative select-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
+            <motion.div
+                className="flex justify-start gap-5 sm:gap-6 md:gap-8 lg:gap-10"
+                animate={{ x: position }}
+                transition={{ type: "tween", duration: 0.1 }}
+                style={{ width: totalWidth * 2 }}
             >
-                <motion.div
-                    className="flex gap-8 py-2"
-                    animate={controls}
-                    initial={{ x: "0%" }}
-                    onUpdate={handleUpdate} // track current position
-                >
-                    {[...movies, ...movies].map((movie, index) => (
-                        <div key={index} className="w-40 shrink-0">
-                            <MovieCard movie={movie} />
-                        </div>
-                    ))}
-                </motion.div>
-            </div>
-        </section>
+                {[...movies, ...movies].map((movie, index) => (
+                    <div
+                        key={index}
+                        className="shrink-0 w-[140px] sm:w-40 md:w-[180px] lg:w-[200px]"
+                    >
+                        <MovieCard movie={movie} />
+                    </div>
+                ))}
+            </motion.div>
+        </div>
     );
 }

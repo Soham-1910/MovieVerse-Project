@@ -16,7 +16,6 @@ function Home() {
 
   const location = useLocation();
 
-  // 🧠 Load movies on mount
   useEffect(() => {
     const loadMovies = async () => {
       try {
@@ -24,7 +23,6 @@ function Home() {
         setMovies(popular);
         setPopularMovies(popular);
 
-        // Randomize top 10 for carousel
         const top = [...popular].sort(() => Math.random() - 0.5).slice(0, 10);
         setTopMovies(top);
       } catch (err) {
@@ -37,7 +35,6 @@ function Home() {
     loadMovies();
   }, []);
 
-  // 🔍 Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim() || loading) return;
@@ -57,7 +54,6 @@ function Home() {
     }
   };
 
-  // 🔄 Reset when returning to home
   useEffect(() => {
     if (location.pathname === "/") {
       setMovies(popularMovies);
@@ -69,7 +65,7 @@ function Home() {
 
   return (
     <motion.div
-      className="min-h-screen bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-white px-6 py-5 pt-24 transition-colors duration-300"
+      className="min-h-screen bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-white px-4 sm:px-6 py-6 pt-24 transition-colors duration-300"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
@@ -78,20 +74,20 @@ function Home() {
       {/* 🔍 Search Bar */}
       <form
         onSubmit={handleSearch}
-        className="flex justify-center items-center gap-4 mb-8"
+        className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 mb-8"
       >
         <input
           type="text"
           placeholder="Search for movies..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full max-w-md px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-500 
+          className="w-full sm:max-w-md px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-900 placeholder-gray-500 
                      focus:outline-none focus:ring-2 focus:ring-red-500
                      dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-300"
         />
         <button
           type="submit"
-          className="bg-red-600 hover:bg-red-500 transition-colors px-4 py-2 rounded-lg font-semibold text-white"
+          className="w-full sm:w-auto bg-red-600 hover:bg-red-500 transition-colors px-4 py-2 rounded-lg font-semibold text-white"
         >
           Search
         </button>
@@ -113,19 +109,25 @@ function Home() {
         <>
           {/* 🎞️ Carousel */}
           {!searched && topMovies.length > 0 && (
-            <TopCarousel movies={topMovies} />
+            <div className="mb-10">
+              <TopCarousel movies={topMovies} />
+            </div>
           )}
 
-          {/* 🎬 Movies */}
+          {/* 🎬 Movies Section */}
           {searched && movies.length === 0 ? (
             <div className="text-center">
               <h2 className="text-xl mb-2">
-                Movie "<span className="text-red-500 dark:text-red-400">{searchQuery}</span>" not found 😞
+                Movie{" "}
+                <span className="text-red-500 dark:text-red-400">
+                  "{searchQuery}"
+                </span>{" "}
+                not found 😞
               </h2>
               <p className="mb-6 text-gray-600 dark:text-gray-400">
                 But here are some popular movies you might enjoy:
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6 justify-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 justify-items-center">
                 {popularMovies.map((movie) => (
                   <MovieCard movie={movie} key={movie.id} />
                 ))}
@@ -133,10 +135,10 @@ function Home() {
             </div>
           ) : (
             <section>
-              <h2 className="text-2xl font-bold mb-4 text-red-600 dark:text-red-500">
+              <h2 className="text-2xl font-bold mb-4 text-red-600 dark:text-red-500 text-center sm:text-left">
                 🎬 {searched ? "Search Results" : "Popular Movies"}
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-8 ml-15 justify-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 justify-items-center">
                 {movies.map((movie) => (
                   <MovieCard movie={movie} key={movie.id} />
                 ))}
