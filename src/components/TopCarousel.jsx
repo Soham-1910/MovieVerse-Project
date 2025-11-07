@@ -10,12 +10,11 @@ export default function TopCarousel({ movies }) {
 
     // Card width changes with screen size
     const itemWidth = window.innerWidth < 640 ? 140 :
-        window.innerWidth < 1024 ? 160 :
-            200; // wider cards for large screens
+        window.innerWidth < 1024 ? 160 : 200;
     const gap = window.innerWidth < 640 ? 10 : 20;
     const totalWidth = (itemWidth + gap) * movies.length;
 
-    // 🎞️ Auto move
+    // 🎞️ Auto move effect
     useEffect(() => {
         if (!autoMove) return;
         const interval = setInterval(() => {
@@ -46,6 +45,10 @@ export default function TopCarousel({ movies }) {
         setAutoMove(true);
     };
 
+    // 🖱️ Mouse hover controls (for desktop)
+    const handleMouseEnter = () => setAutoMove(false);
+    const handleMouseLeave = () => setAutoMove(true);
+
     return (
         <div
             ref={carouselRef}
@@ -53,6 +56,8 @@ export default function TopCarousel({ movies }) {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
             <motion.div
                 className="flex justify-start gap-5 sm:gap-6 md:gap-8 lg:gap-10"
