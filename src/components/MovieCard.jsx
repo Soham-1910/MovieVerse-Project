@@ -12,10 +12,12 @@ function MovieCard({ movie }) {
 
     return (
         <div
-            className="bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-xl 
-            transform hover:scale-105 transition-transform duration-200 
-            relative w-full sm:w-[150px] md:w-[180px] lg:w-[200px]"
+            className="
+        bg-gray-900 rounded-xl overflow-hidden shadow-md hover:shadow-xl 
+        transform hover:scale-105 transition-transform duration-200 
+        relative w-full sm:max-w-[150px] md:max-w-[180px] lg:max-w-[200px]"
         >
+
             {/* Poster */}
             <div className="relative">
                 <img
@@ -32,8 +34,8 @@ function MovieCard({ movie }) {
                 <button
                     onClick={onFavoriteClick}
                     className={`absolute top-2 right-2 text-lg sm:text-xl transition-colors ${favorite
-                            ? "text-red-500 hover:text-red-400"
-                            : "text-white hover:text-red-400"
+                        ? "text-red-500 hover:text-red-400"
+                        : "text-white hover:text-red-400"
                         }`}
                 >
                     ♥
